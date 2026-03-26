@@ -32,12 +32,7 @@ struct MusicSearchService: SearchServiceProtocol {
 
         let response = try await request.response()
         return response.suggestions.compactMap { suggestion in
-            switch suggestion {
-            case .term(let term):
-                return term.searchTerm
-            default:
-                return nil
-            }
+            suggestion.displayTerm
         }
     }
 }

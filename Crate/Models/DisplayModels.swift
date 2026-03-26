@@ -1,11 +1,10 @@
 import Foundation
-import SwiftUI
 
 // MARK: - Display Models
 // Lightweight value types that view models produce from MusicKit types.
 // These decouple views from MusicKit, enabling testability (MusicKit types lack public initializers).
 
-struct AlbumItem: Identifiable, Hashable, Sendable {
+nonisolated struct AlbumItem: Identifiable, Hashable, Sendable {
     let id: String
     let title: String
     let artistName: String
@@ -13,9 +12,12 @@ struct AlbumItem: Identifiable, Hashable, Sendable {
     let releaseDate: Date?
     let trackCount: Int
     let genreNames: [String]
+
+    static func == (lhs: AlbumItem, rhs: AlbumItem) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-struct SongItem: Identifiable, Hashable, Sendable {
+nonisolated struct SongItem: Identifiable, Hashable, Sendable {
     let id: String
     let title: String
     let artistName: String
@@ -23,25 +25,31 @@ struct SongItem: Identifiable, Hashable, Sendable {
     let artworkURL: ArtworkSource?
     let duration: TimeInterval?
     let trackNumber: Int?
+
+    static func == (lhs: SongItem, rhs: SongItem) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-struct ArtistItem: Identifiable, Hashable, Sendable {
+nonisolated struct ArtistItem: Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let artworkURL: ArtworkSource?
     let genreNames: [String]
 }
 
-struct PlaylistItem: Identifiable, Hashable, Sendable {
+nonisolated struct PlaylistItem: Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let curatorName: String?
     let description: String?
     let artworkURL: ArtworkSource?
     let trackCount: Int
+
+    static func == (lhs: PlaylistItem, rhs: PlaylistItem) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-struct StationItem: Identifiable, Hashable, Sendable {
+nonisolated struct StationItem: Identifiable, Hashable, Sendable {
     let id: String
     let name: String
     let artworkURL: ArtworkSource?
@@ -51,9 +59,8 @@ struct StationItem: Identifiable, Hashable, Sendable {
 
 /// Wraps MusicKit Artwork into a Sendable, testable type.
 /// Stores the base URL template so we can request sized images later.
-struct ArtworkSource: Hashable, Sendable {
+nonisolated struct ArtworkSource: Hashable, Sendable {
     let urlTemplate: String?
-    let backgroundColor: Color?
     let width: Int?
     let height: Int?
 
@@ -69,7 +76,7 @@ struct ArtworkSource: Hashable, Sendable {
 
 // MARK: - Chart Section
 
-struct ChartSection<Item: Identifiable & Hashable & Sendable>: Identifiable, Sendable {
+nonisolated struct ChartSection<Item: Identifiable & Hashable & Sendable>: Identifiable, Sendable {
     let id: String
     let title: String
     var items: [Item]
@@ -78,7 +85,7 @@ struct ChartSection<Item: Identifiable & Hashable & Sendable>: Identifiable, Sen
 
 // MARK: - Search Results
 
-struct SearchResults: Sendable {
+nonisolated struct SearchResults: Sendable {
     var songs: [SongItem] = []
     var albums: [AlbumItem] = []
     var artists: [ArtistItem] = []
@@ -91,7 +98,7 @@ struct SearchResults: Sendable {
 
 // MARK: - Now Playing State
 
-struct NowPlayingState: Sendable {
+nonisolated struct NowPlayingState: Sendable {
     let title: String
     let artistName: String
     let artworkURL: ArtworkSource?

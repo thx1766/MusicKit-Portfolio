@@ -41,21 +41,24 @@ final class MusicPlayerService: PlayerServiceProtocol, @unchecked Sendable {
 
     func play(song: SongItem) async throws {
         let musicID = MusicItemID(song.id)
-        let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: musicID)
+        var request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: musicID)
+        request.properties = [.albums]
         let response = try await request.response()
 
         guard let musicSong = response.items.first else { return }
-        player.queue = [musicSong]
+        player.queue = ApplicationMusicPlayer.Queue(for: [musicSong])
+        try await player.prepareToPlay()
         try await player.play()
     }
 
     func play(songs: [SongItem], startingAt index: Int) async throws {
-        // Fetch all songs from the catalog
+        // Fetch all songs from the catalog with album relationships
         let musicIDs = songs.map { MusicItemID($0.id) }
         var allSongs: [Song] = []
 
         for id in musicIDs {
-            let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: id)
+            var request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: id)
+            request.properties = [.albums]
             let response = try await request.response()
             if let song = response.items.first {
                 allSongs.append(song)
@@ -66,6 +69,7 @@ final class MusicPlayerService: PlayerServiceProtocol, @unchecked Sendable {
 
         player.queue = ApplicationMusicPlayer.Queue(for: allSongs,
                                                      startingAt: allSongs[safe: index])
+        try await player.prepareToPlay()
         try await player.play()
     }
 

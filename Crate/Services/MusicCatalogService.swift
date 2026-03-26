@@ -65,7 +65,10 @@ struct MusicCatalogService: CatalogServiceProtocol {
             throw CatalogError.notFound
         }
 
-        let tracks = album.tracks?.map { $0.toDisplayModel() } ?? []
+        let tracks = album.tracks?.compactMap { track -> SongItem? in
+            guard case .song(let song) = track else { return nil }
+            return song.toDisplayModel()
+        } ?? []
         return (album.toDisplayModel(), tracks)
     }
 
@@ -142,7 +145,7 @@ extension Album {
             artistName: artistName,
             artworkURL: artwork?.toArtworkSource(),
             releaseDate: releaseDate,
-            trackCount: trackCount ?? 0,
+            trackCount: trackCount,
             genreNames: genreNames
         )
     }
@@ -168,7 +171,7 @@ extension Artist {
             id: id.rawValue,
             name: name,
             artworkURL: artwork?.toArtworkSource(),
-            genreNames: genreNames
+            genreNames: genreNames ?? []
         )
     }
 }
@@ -179,7 +182,7 @@ extension Playlist {
             id: id.rawValue,
             name: name,
             curatorName: curatorName,
-            description: description?.standard,
+            description: shortDescription,
             artworkURL: artwork?.toArtworkSource(),
             trackCount: tracks?.count ?? 0
         )
@@ -196,7 +199,6 @@ extension Artwork {
 
         return ArtworkSource(
             urlTemplate: template,
-            backgroundColor: nil,
             width: maximumWidth,
             height: maximumHeight
         )
